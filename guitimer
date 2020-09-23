@@ -13,6 +13,12 @@ error() {
 [ -z $(which zenity) ] && error "zenity is not installed."
 
 TIME=60
+SOUND=1
+
+if [[ "$1" == -s ]]
+then
+    SOUND=0
+fi
 
 while true
 do
@@ -35,23 +41,36 @@ do
     fi
 
     echo "DEBUG: there are $steps steps in $TIME seconds"
-
-    counter=0
-    (
-    for i in $(seq 0 $TIME)
+    
+    while true
     do
-        echo "# $i seconds out of $TIME elapsed..."
-        if [[ $(expr $i % $steps) == "0" ]]
+        counter=0
+        (
+        for i in $(seq 0 $TIME)
+        do
+            remain=$(expr $TIME - $i)
+            echo "# $remain seconds remaining..."
+            # FIXME: the progress counter messes up with the actual elapsed time
+            #if [[ $(expr $i % $steps) == 0 ]]
+            #then
+            #    counter=$(expr $counter + $steps)
+            #    echo $counter
+            #fi
+            sleep 1
+        done
+        ) | zenity --progress --title="Counting down" --percentage=0 --auto-close
+
+        if [[ $SOUND == 1 ]]
         then
-            counter=$(expr $counter + $steps)
-            echo $counter
+            mpv /usr/share/sounds/freedesktop/stereo/phone-incoming-call.oga &
         fi
-        sleep 1
+
+        zenity --question \
+            --title="Time is up!" \
+            --text="Countdown ended! $TIME seconds have passed. Count again?"
+
+        [[ $? == 1 ]] && break
     done
-    ) | zenity --progress --title="Counting down" --percentage=0 --auto-close
-    zenity --info \
-        --title="Time is up!" \
-        --text="Countdown ended! $TIME seconds have passed."
 done
 
 exit 0
