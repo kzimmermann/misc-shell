@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# A GUI timer that uses zenity to provide the visual dialogs.
+# Fully user-adjustable without going to the command-line.
+#
+
+# shorthand to error quitting while providing some info.
+error() {
+    echo "Error: $1"
+    exit 1
+}
+
+[ -z $(which zenity) ] && error "zenity is not installed."
+
+TIME=60
+
+while true
+do
+    TIME=$(zenity --forms  \
+        --title="Bash Timer" \
+        --text="Enter how much time to count down" \
+        --add-entry="Seconds to wait") || break
+    
+    # Is this a valid integer?
+    expr "$TIME" + 2 > /dev/null || continue
+
+    # How many "percents" in the given time?
+    if [ $TIME -lt 100 ]
+    then
+        steps=$(expr "$TIME" / 10)
+        progress_size=10
+    else
+        steps=$(expr "$TIME" / 100)
+        progress_size=1
+    fi
+
+    echo "DEBUG: there are $steps steps in $TIME seconds"
+
+    counter=0
+    (
+    for i in $(seq 0 $TIME)
+    do
+        echo "# $i seconds out of $TIME elapsed..."
+        if [[ $(expr $i % $steps) == "0" ]]
+        then
+            counter=$(expr $counter + $steps)
+            echo $counter
+        fi
+        sleep 1
+    done
+    ) | zenity --progress --title="Counting down" --percentage=0 --auto-close
+    zenity --info \
+        --title="Time is up!" \
+        --text="Countdown ended! $TIME seconds have passed."
+done
+
+exit 0
