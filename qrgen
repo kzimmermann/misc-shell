@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+#
+# Uses the qrcode module (included in ubuntu?) to generate terminal-friendly
+# QR codes that you can share as plaintext, etc
+#
+'''
+Usage: qrgen DATA
+
+Where DATA is a string to be formatted into the QR code, for example: 
+https://example.com
+'''
+
+import sys
+import qrcode
+
+if len(sys.argv) == 1:
+    print(__doc__)
+    sys.exit(1)
+
+gen = qrcode.QRCode()
+gen.add_data(sys.argv[1])
+gen.print_ascii()
+sys.exit(0)
