@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Symmetrical AES-256 encryption using openssl.
+#
+# Since the syntax is a little hard to interpret, this comes in handy.
+#
+# Pass '-d' to decrypt
+#
+
+COMMAND="openssl enc -aes-256-cbc -base64 -pbkdf2 "
+
+if [[ "$1" == '-d' ]]
+then
+    COMMAND="openssl enc -aes-256-cbc -base64 -pbkdf2 -d "
+fi
+
+printf "Enter your message: "
+read message
+
+printf "Enter the encryption password: "
+read -s pass
+
+echo ""
+
+# The last bit is only because I like having everything in one line.
+if [[ "$1" == '-d' ]]
+then
+    $COMMAND -k "$pass"
+else
+    echo "$message" | $COMMAND -k "$pass" | tr -d "\n"
+fi
+echo ""
