@@ -1,0 +1,43 @@
+#!/bin/bash
+#
+# Scrape SSLproxies.org for ones that can be used with Brazil.
+#
+# Depends on the neat-o html2text program to work. Probably could be used with
+# curl only, but I'm lazy and this was the first answer I had.
+#
+# Pass the country name like 'Brazil' as the first argument in order to 
+# determine which country you'd like to get proxies from, otherwise defaults
+# to Brazil.
+#
+# The proxy listing site format is virtually identical, however, to another one
+# that lists SOCKS v4 and v5 proxies. These probably are better privacy-wise 
+# (no breaking encryption), but might not work depending on the OS.
+# https://www.socks-proxy.net
+#
+# Pass '-s' or '--socks' if you wish to receive SOCKS proxy instead.
+#
+
+scrapesite="https://sslproxies.org"
+argument='/Brazil/ { print $1, $2, $3 }'
+
+if [[ -z $(which html2text) ]]
+then
+    echo "Error: this script requires html2text to work."
+    exit 1
+fi
+
+while [[ -n "$1" ]]
+do
+    case "$1" in
+        "-s" | "--socks" )
+            scrapesite="https://www.socks-proxy.net/"
+            echo "Using SOCKS proxy"
+        ;;
+        * )
+            argument="/$1/ { print \$1, \$2, \$3 }"
+        ;;
+    esac
+    shift
+done
+
+curl "$scrapesite" 2> /dev/null | html2text | awk "$argument"

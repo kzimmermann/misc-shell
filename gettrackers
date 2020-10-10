@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# Quick and dirty bit to get NGOsang's best tracker list to clipboard
+# If you need an update, pass the -u flag.
+#
+
+cd /home/vman/Programs/trackerslist/ || exit 1
+
+if [[ "$1" == "-u" ]]
+then
+    echo "Updating tracker information..."
+    git pull &> /dev/null
+fi
+
+cat trackers_best.txt | xsel -ib
+echo "Tracker information copied to clipboard."
+exit 0
