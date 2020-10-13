@@ -6,7 +6,7 @@
 # Credit where it's due: https://stackoverflow.com/a/20277787
 #
 
-if [["$1" == ""]]
+if [[ "$1" == "" ]]
 then
     echo "Please provide a process to find out how much memory it's using"
     exit 1
