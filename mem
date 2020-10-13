@@ -1,0 +1,17 @@
+#!/bin/bash
+#
+# finding the memory used by a process. This should give some pretty good idea.
+# pass $1 as the process name
+# 
+# Credit where it's due: https://stackoverflow.com/a/20277787
+#
+
+if [["$1" == ""]]
+then
+    echo "Please provide a process to find out how much memory it's using"
+    exit 1
+fi
+
+ps -eo rss,pid,euser,args:100 --sort %mem |
+    grep -v grep | grep -i $@ | 
+    awk '{printf $1/1024 "MB"; $1=""; print }'
