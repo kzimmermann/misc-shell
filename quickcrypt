@@ -1,17 +1,45 @@
 #!/bin/bash
 #
-# Symmetrical AES-256 encryption using openssl.
+# Symmetrical AES-256 encryption using openssl. Now available in your shell.
 #
-# Since the syntax is a little hard to interpret, this comes in handy.
+# Why? Because some idiots with "power" are trying to outlaw end-to-end strong
+# cryptography. And they coercing other countries to do the same:
 #
-# Pass '-d' to decrypt
+#    https://istart.com.au/news-items/five-eyes-continue-battle-for-encryption-backdoors/
+# 
+# Software developers should "remove end-to-end cryptography" from their 
+# systems? That's ludicrous. An attack on all of us. The best way we can fight
+# back is by implementing it at all levels we can. And if only plaintext 
+# becomes the environment, let's slap encrypted messages into it.
+#
+# Of course, you could have used plain openssl and terminal skills with it. 
+# But since the syntax is a little hard to interpret, this script is handy.
+#
+# USAGE: quickcrypt [-d] [CIPHERTEXT]
+# Pass '-d' to decrypt CIPHERTEXT.
+# Otherwise reads the message from stdin and the password afterwards.
+#
+# ---
+#
+# Copyright 2020 - Klaus J Zimmermann - https://tilde.town/~kzimmermann
+#
+# This program is Free Software released under the terms and conditions of the
+# GNU GPL v3. You are encouraged to share, modify, improve and re-release it as
+# much as possible. See https://gnu.org/licenses for more information.
 #
 
 COMMAND="openssl enc -aes-256-cbc -base64 -pbkdf2 "
 
 if [[ "$1" == '-d' ]]
 then
-    COMMAND="openssl enc -aes-256-cbc -base64 -pbkdf2 -d "
+    if  [[ "$2" == "" ]]
+    then
+        echo "Error: no message to decrypt provided."
+        exit 1
+    fi
+    echo "$2" | openssl enc -aes-256-cbc -base64 -pbkdf2 -d
+    echo ""
+    exit 0
 fi
 
 printf "Enter your message: "
@@ -23,10 +51,13 @@ read -s pass
 echo ""
 
 # The last bit is only because I like having everything in one line.
-if [[ "$1" == '-d' ]]
+ciphertext=$(printf "$message" | $COMMAND -k "$pass" | tr -d "\n")
+
+# A little more friendly for the user to paste this around
+if [ -n $(which xsel) ]
 then
-    $COMMAND -k "$pass"
+    printf "$ciphertext" | xsel
+    echo "Message copied to clipboard."
 else
-    echo "$message" | $COMMAND -k "$pass" | tr -d "\n"
+    echo $ciphertext
 fi
-echo ""
