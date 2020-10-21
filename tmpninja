@@ -1,0 +1,38 @@
+#!/bin/bash
+#
+# Shorthand to upload a file via The Pirate Bay's tmp.ninja temporary file
+# hosting service. As of August 2020, they store up to 10GB for 48 hours.
+#
+# Obviously, using a public API with a publicly accessible link implies that 
+# ANYONE can access your file, and there are no guarantees that in the backend
+# they will actually perform as claimed. Therefore, strong encryption on 
+# anything that is considered sensitive or personal is a must.
+#
+# Also: no guarantees that they will even keep the service alive. This is a
+# "nice to have" service by all means.
+#
+
+usage() {
+    cat <<EOF
+    USAGE: $(basename $0) FILE1 FILE2 ... FILEN
+    Uploads FILEs to TMP.Ninja temporary storage 
+    Returns FILE's URL, available up to 48h.
+EOF
+}
+
+if [[ -z "$1" ]]
+then
+    echo "Error: no given files to upload!"
+    usage
+    exit 1
+fi
+
+while [[ -n "$1" ]]
+do
+    url=$(curl -i -F file=@"$1" "https://tmp.ninja/api.php?d=upload-tool" 2> /dev/null | grep http)
+    echo "Uploaded file '$(basename $1)' to $url"
+    shift
+done
+
+echo "Remember to download the file up to 48h starting from now!"
+exit 0
