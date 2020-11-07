@@ -1,0 +1,18 @@
+#!/bin/bash
+#
+# Generate a strong (but deterministic) password from standard command-line 
+# utilities
+#
+# Not as strong as a truly random password, but good enough to provide 
+# a strong token of sorts if you don't have anything better.
+#
+
+# Tweak this to taste:
+LENGTH=36
+
+# You may tweak this too, but too large a number might do some overflow:
+START=5
+
+seed=$(date | sha256sum | base64)
+
+echo ${seed:$START:$LENGTH}
