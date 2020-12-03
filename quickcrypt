@@ -87,12 +87,12 @@ then
     ciphertext=$(printf "$message" | $COMMAND -k "$KEY" | tr -d "\n")
 
     # A little more friendly for the user to paste this around
-    if [ -n $(which xsel) ]
+    if [[ $(which xsel) == "" ]]
     then
+        echo $ciphertext
+    else
         printf "$ciphertext" | xsel
         echo "Message copied to clipboard."
-    else
-        echo $ciphertext
     fi
 else
     echo "$message" | $COMMAND -k "$KEY" -d
