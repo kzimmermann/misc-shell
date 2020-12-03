@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+# Reduces an image to half its width (about 1/4 of the original size), 
+# suffixing it with '_small' to differ it from original file.
+#
+# Requires imagemagick (which provides the `convert` command)
+#
+
+if [[ $(which convert) == "" ]]
+then
+    echo "Error: this script requires imagemagick to work."
+    echo "Please install it before using it."
+    exit 1
+fi
+
+helper() {
+    echo "Usage: $(basename $0) FILE1 FILE2 ... FILEN"
+    echo "Reduces image FILEs to FILE_small with 1/4 of the size"
+}
+
+error() {
+    # Shorthand to explain the error and quit
+    # $1 is the error message.
+    echo "Error: $1"
+    exit 1
+}
+
+reduce() {
+    # Argument: $1 an image file that to be compressed
+    # reduces $1 into an image with half the width, saves it as $1_small
+
+    # Get image width:
+    width=$(identify -format "%w" "$1")
+
+    new_width=$(echo "$width / 2" | bc)
+
+    # This little bit of "bash magic" gets files names or extensions!
+    extension="${1##*.}"
+    filename="${1%.*}"
+
+    new_file="${filename}_small.${extension}"
+
+    convert "$1" -resize $new_width "$new_file"
+}
+
+if [[ $# == 0 ]]
+then
+    helper
+    exit 1
+fi
+
+while [[ "$1" != "" ]]
+do
+   reduce "$1" || error "could not reduce $1. Is it an image file?"
+   echo "Reduced $1"
+   shift
+done
