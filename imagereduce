@@ -6,6 +6,10 @@
 # Requires imagemagick (which provides the `convert` command)
 #
 
+# Reduce images' width by how much? Note that this also reduces the height by
+# this factor, resulting in an image that is actually FACTOR^2 times smaller.
+FACTOR=3
+
 if [[ $(which convert) == "" ]]
 then
     echo "Error: this script requires imagemagick to work."
@@ -32,7 +36,7 @@ reduce() {
     # Get image width:
     width=$(identify -format "%w" "$1")
 
-    new_width=$(echo "$width / 2" | bc)
+    new_width=$(echo "$width / $FACTOR" | bc)
 
     # This little bit of "bash magic" gets files names or extensions!
     extension="${1##*.}"
